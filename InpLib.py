@@ -1,9 +1,13 @@
 import numpy as np
 
-class PartSet:
+class XSet:
     def __init__(self) -> None:
         self.name = ""
         self.type = ""
+        self.instance = ""
+        self.pattern = ""
+        self.generate = []
+        self.list = []
 
 class Material:
     def __init__(self) -> None:
@@ -40,6 +44,11 @@ class Property(Module):
     def __init__(self) -> None:
         super().__init__()
         self.Material
+
+class Instance:
+    def __init__(self) -> None:
+        self.name = ""
+        self.part = ""
 
 class assembly:
     pass
