@@ -1,5 +1,15 @@
 import numpy as np
 
+headingKeys = "*Heading"
+partKeys = "*Part, "
+nodeKeys = "*Node"
+elementKeys = "*Element, "
+endPartKeys = "*End Part"
+assemblyKeys = "Assembly, "
+instanceKeys = "*Instance, "
+instanceEndKeys = "*End Instance"
+setKeys = "set, "
+
 class XSet:
     def __init__(self) -> None:
         self.name = ""
@@ -43,7 +53,7 @@ class Part(Module):
 class Property(Module):
     def __init__(self) -> None:
         super().__init__()
-        self.Material
+        self.Material = 0
 
 class Instance:
     def __init__(self) -> None:
@@ -61,3 +71,4 @@ class interaction:
 
 class load:
     pass
+
