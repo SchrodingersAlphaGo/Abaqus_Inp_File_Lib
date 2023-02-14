@@ -1,5 +1,6 @@
 from InpLib import *
 import numpy as np
+import vtk
 
 fname = "./Job-1.inp"
 
@@ -55,24 +56,45 @@ print("number of elements : ", numElements)
 # analyze all sets
 allNsets = {}
 for setname,nline in allSetStart.items():
-    i = nline
-    print(i)
-    while (i<numNodes):
+    i = nline  # number of line
+    # print(i)
+    while (True):
         if "generate" in inpFileContents[i-1]:
             llist = inpFileContents[i].split(",")
-            print(llist)
+            # print(llist)
             allNsets[setname] = [int(llist[j]) for j in range(len(llist))]
             break
         else:
-            allNsets[setname] = []
+            if setname not in allNsets:
+                allNsets[setname] = []
             llist = inpFileContents[i].split(",")
             try:
                 a = int(llist[0])
                 allNsets[setname] += [int(llist[j]) for j in range(len(llist))]
+                i += 1
             except:
                 break
-# print(allNsets.items())
+# for k,v in allNsets.items():
+    # print(k, len(v))
+
 # split in z
+# each layer
+for setname, set in allNsets.items(): 
+    if len(set) == 3: continue
+    # create vtkPoints
+    vpts = vtk.vtkPoints()
+    for i in set:
+        p = tuple(allNodes[i])
+        vpts.InsertNextPoint(p)
+
+    # create kdTree
+    kdtree = vtk.vtkKdTree()
+    kdtree.BuildLocatorFromPoints(vpts)
+
+    # find closest 4 points
+    idList = vtk.vtkIdList()
+    kdtree.FindClosestNPoints(5, )
+# 
 
 # create fiber for each layer
 
