@@ -91,9 +91,20 @@ for setname, set in allNsets.items():
     kdtree = vtk.vtkKdTree()
     kdtree.BuildLocatorFromPoints(vpts)
 
-    # find closest 4 points
-    idList = vtk.vtkIdList()
-    kdtree.FindClosestNPoints(5, )
+    # find first column points
+    firstColumnPoints = []
+    for i in set:
+        # find closest 4 points
+        pId = set[i]
+        p = allNodes[pId] 
+        idList = vtk.vtkIdList()
+        kdtree.FindClosestNPoints(5, p, idList)
+        for j in range(idList.GetNumberOfIds()):
+            pIdj = idList.GetId(j)
+            if pIdj == pId: continue
+            pj = vpts.GetPoint(pIdj)
+            
+
 # 
 
 # create fiber for each layer
