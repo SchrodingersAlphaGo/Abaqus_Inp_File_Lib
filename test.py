@@ -2,7 +2,8 @@ from InpLib import *
 import numpy as np
 import vtk
 
-fname = "./Job-1.inp"
+# fname = "./Job-1.inp"
+fname = "./disc/Job-1.inp"
 
 with open(fname, "r") as f:
     inpFileContents = f.readlines()
@@ -77,12 +78,14 @@ for setname,nline in allSetStart.items():
 # for k,v in allNsets.items():
     # print(k, len(v))
 
+# exit()
+
 # split in z
 # each layer
 for setname, setList in allNsets.items():
     print("set name : ", setname)
     setListLen = len(setList)
-    if setListLen == 3: 
+    if setListLen == 3 and ("layer-" not in setname or "z-" not in setname):
         continue
     # create vtkPoints
     vpts = vtk.vtkPoints()
