@@ -79,13 +79,17 @@ for setname,nline in allSetStart.items():
 
 # split in z
 # each layer
-for setname, set in allNsets.items(): 
-    if len(set) == 3: continue
+for setname, setList in allNsets.items():
+    print("set name : ", setname)
+    setListLen = len(setList)
+    if setListLen == 3: 
+        continue
     # create vtkPoints
     vpts = vtk.vtkPoints()
-    for i in set:
-        p = tuple(allNodes[i])
+    for i in range(setListLen):
+        p = tuple(allNodes[setList[i]])
         vpts.InsertNextPoint(p)
+        # vpts.SetPoint(i, p)
 
     # create kdTree
     kdtree = vtk.vtkKdTree()
@@ -98,8 +102,9 @@ for setname, set in allNsets.items():
         if i >= len(firstColumnPoints):
             break
         p = vpts.GetPoint(pId)
+        print("p : ", p)
         idList = vtk.vtkIdList()
-        kdtree.FindClosestNPoints(5, p, idList)
+        kdtree.FindClosestNPoints(6, p, idList)
         zAxisPtsId = []
         zAxisDz = []
         xyAxisPtsId = []
@@ -117,7 +122,8 @@ for setname, set in allNsets.items():
             else:
                 zAxisPtsId.append(pIdj)
                 zAxisDz.append(dz)
-            print(pId, pIdj, dz)
+            print(pId, pIdj, dz, pj)
+        continue
         # print(xyAxisPtsId)
         # print(zAxisPtsId)
         # exclude z axial neighbor point at same side
@@ -144,12 +150,15 @@ for setname, set in allNsets.items():
         for x in rmPid:
             zAxisPtsId.remove(x)
 
+        colUpdated = False
         for x in zAxisPtsId:
             if x not in firstColumnPoints:
                 firstColumnPoints.append(x)
+                colUpdated = True
         print("zids : ", zAxisPtsId)
         print("1st col : ",firstColumnPoints)
-        pId = firstColumnPoints[i+1]
+        if colUpdated:
+            pId = firstColumnPoints[i+1]
         print("pId : ", pId)
     # for id in firstColumnPoints:
         # p = vpts.GetPoint(id)

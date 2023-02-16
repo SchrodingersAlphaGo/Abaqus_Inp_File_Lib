@@ -1,0 +1,330 @@
+# -*- coding: mbcs -*-
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.openIges('F:/Data/projects/spine_FEA/disc/disc-1.iges', msbo=True, 
+    scaleFromFile=OFF, trimCurve=DEFAULT)
+mdb.models['Model-1'].PartFromGeometryFile(combine=False, convertToAnalytical=1
+    , dimensionality=THREE_D, geometryFile=mdb.acis, name='disc-1', 
+    stitchEdges=1, stitchTolerance=1.0, type=DEFORMABLE_BODY)
+mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='disc-1-1', 
+    part=mdb.models['Model-1'].parts['disc-1'])
+mdb.models['Model-1'].parts['disc-1'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=0.61)
+mdb.models['Model-1'].parts['disc-1'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=1.0)
+mdb.models['Model-1'].parts['disc-1'].setMeshControls(regions=
+    mdb.models['Model-1'].parts['disc-1'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ), technique=BOTTOM_UP)
+mdb.meshEditOptions.setValues(enableUndo=True, maxUndoCacheElements=0.5)
+del mdb.models['Model-1'].parts['disc-1']
+mdb.openIges('F:/Data/projects/spine_FEA/disc/disc-2.iges', msbo=True, 
+    scaleFromFile=OFF, trimCurve=DEFAULT)
+mdb.models['Model-1'].PartFromGeometryFile(combine=False, convertToAnalytical=1
+    , dimensionality=THREE_D, geometryFile=mdb.acis, name='disc-2', 
+    stitchEdges=1, stitchTolerance=1.0, type=DEFORMABLE_BODY)
+mdb.models['Model-1'].rootAssembly.suppressFeatures(featureNames=('disc-1-1', 
+    ))
+del mdb.models['Model-1'].rootAssembly.features['disc-1-1']
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='disc-2-1', 
+    part=mdb.models['Model-1'].parts['disc-2'])
+mdb.models['Model-1'].parts['disc-2'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=1.0)
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(regions=
+    mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ), technique=BOTTOM_UP)
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometryConnectingSides=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#e0000003 #3f #600c000c #1 ]', ), )), geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#f7fc000 #fffe0000 #1c03f803 ]', ), )))
+mdb.models['Model-1'].parts['disc-2'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=1.5)
+del mdb.models['Model-1'].parts['disc-2']
+mdb.openIges('F:/Data/projects/spine_FEA/disc/disc-2.iges', msbo=True, 
+    scaleFromFile=OFF, trimCurve=DEFAULT)
+mdb.models['Model-1'].PartFromGeometryFile(combine=False, convertToAnalytical=1
+    , dimensionality=THREE_D, geometryFile=mdb.acis, name='disc-2', 
+    stitchEdges=1, stitchTolerance=1.0, type=DEFORMABLE_BODY)
+mdb.models['Model-1'].rootAssembly.regenerate()
+del mdb.models['Model-1'].rootAssembly.features['disc-2-1']
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='disc-2-1', 
+    part=mdb.models['Model-1'].parts['disc-2'])
+mdb.models['Model-1'].parts['disc-2'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=1.1)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh(regions=
+    mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ))
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(algorithm=MEDIAL_AXIS, 
+    regions=mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask((
+    '[#1 ]', ), ))
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=2.0)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh(regions=
+    mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ))
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(minTransition=OFF, 
+    regions=mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask((
+    '[#1 ]', ), ))
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh(regions=
+    mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ))
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(algorithm=ADVANCING_FRONT
+    , regions=mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask((
+    '[#1 ]', ), ))
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].rootAssembly.regenerate()
+del mdb.models['Model-1'].rootAssembly.features['disc-2-1']
+del mdb.models['Model-1'].parts['disc-2']
+mdb.openIges('F:/Data/projects/spine_FEA/disc/disc-2.iges', msbo=True, 
+    scaleFromFile=OFF, trimCurve=DEFAULT)
+mdb.models['Model-1'].PartFromGeometryFile(combine=False, convertToAnalytical=1
+    , dimensionality=THREE_D, geometryFile=mdb.acis, name='disc-2', 
+    stitchEdges=1, stitchTolerance=1.0, type=DEFORMABLE_BODY)
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='disc-2-1', 
+    part=mdb.models['Model-1'].parts['disc-2'])
+mdb.models['Model-1'].parts['disc-2'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=1.4)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(regions=
+    mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ), technique=BOTTOM_UP)
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), numberOfLayers=1, targetSide=
+    mdb.models['Model-1'].parts['disc-2'].faces[30])
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), numberOfLayers=4, targetSide=
+    mdb.models['Model-1'].parts['disc-2'].faces[30])
+mdb.models['Model-1'].rootAssembly.regenerate()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometryConnectingSides=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#3ffffffe ]', ), )), geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#40000000 ]', ), )))
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=1.4)
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometryConnectingSides=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#3ffffffe ]', ), )), geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#40000000 ]', ), )))
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpExtrudedMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], extrudeVector=(
+    mdb.models['Model-1'].parts['disc-2'].InterestingPoint(
+    mdb.models['Model-1'].parts['disc-2'].edges[63], MIDDLE), 
+    mdb.models['Model-1'].parts['disc-2'].vertices[46]), geometrySourceSide=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), numberOfLayers=4)
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpExtrudedMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], extrudeVector=(
+    mdb.models['Model-1'].parts['disc-2'].vertices[6], 
+    mdb.models['Model-1'].parts['disc-2'].vertices[46]), geometrySourceSide=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), numberOfLayers=4)
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometryConnectingSides=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#3ffffffe ]', ), )), geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )), targetSide=
+    mdb.models['Model-1'].parts['disc-2'].faces[30])
+mdb.models['Model-1'].parts['disc-2'].generateBottomUpSweptMesh(cell=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], geometryConnectingSides=
+    Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#3ffffffe ]', ), )), geometrySourceSide=Region(
+    faces=mdb.models['Model-1'].parts['disc-2'].faces.getSequenceFromMask(
+    mask=('[#1 ]', ), )))
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=3.0)
+mdb.models['Model-1'].parts['disc-2'].setMeshControls(algorithm=MEDIAL_AXIS, 
+    regions=mdb.models['Model-1'].parts['disc-2'].cells.getSequenceFromMask((
+    '[#1 ]', ), ), technique=SWEEP)
+mdb.models['Model-1'].parts['disc-2'].setSweepPath(edge=
+    mdb.models['Model-1'].parts['disc-2'].edges[49], region=
+    mdb.models['Model-1'].parts['disc-2'].cells[0], sense=FORWARD)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=1.5)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=1.4)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=1.3)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+mdb.models['Model-1'].parts['disc-2'].deleteMesh()
+mdb.models['Model-1'].parts['disc-2'].seedPart(minSizeFactor=0.999, size=1.5)
+mdb.models['Model-1'].parts['disc-2'].generateMesh()
+# Save by zay on 2023_02_05-23.27.14; build 2021 2020_03_06-22.50.37 167380
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['Model-1'].rootAssembly.regenerate()
+mdb.Job(activateLoadBalancing=False, atTime=None, contactPrint=OFF, 
+    description='', echoPrint=OFF, explicitPrecision=SINGLE, 
+    getMemoryFromAnalysis=True, historyPrint=OFF, memory=90, memoryUnits=
+    PERCENTAGE, model='Model-1', modelPrint=OFF, multiprocessingMode=DEFAULT, 
+    name='Job-1', nodalOutputPrecision=SINGLE, numCpus=1, numDomains=1, 
+    numGPUs=0, parallelizationMethodExplicit=DOMAIN, queue=None, resultsFormat=
+    ODB, scratch='', type=ANALYSIS, userSubroutine='', waitHours=0, 
+    waitMinutes=0)
+mdb.models['Model-1'].rootAssembly.Set(faces=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].faces.getSequenceFromMask(
+    ('[#3ffff000 ]', ), ), name='outer-geo')
+# Save by zay on 2023_02_05-23.46.51; build 2021 2020_03_06-22.50.37 167380
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['Model-1'].rootAssembly.Set(faces=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].faces.getSequenceFromMask(
+    ('[#ffe ]', ), ), name='inner-geo')
+mdb.models['Model-1'].rootAssembly.Set(faces=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].faces.getSequenceFromMask(
+    ('[#40000000 ]', ), ), name='bottom')
+mdb.models['Model-1'].rootAssembly.Set(faces=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].faces.getSequenceFromMask(
+    ('[#1 ]', ), ), name='top')
+mdb.models['Model-1'].rootAssembly.Set(name='layer-1', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0 #20200020 #4400000 #108 #10000401 #44444440 #3fc44444', 
+    ' #22000000 #11111113 #88888111 #18888888 #11111 #2000000 #20200', 
+    ' #10804400 #40100000 #44010000 #44444444 #3fc44 #11322000 #11111111', 
+    ' #88888888 #11118888 #11 #20002000 #40000020 #10804 #40100', 
+    ' #44444010 #c4444444 #3f #11111322 #88811111 #88888888 #1111118', 
+    ' #0 #2020002 #80440000 #10000010 #1000040 #44444444 #3fc4444', 
+    ' #32200000 #11111111 #88888811 #11888888 #1111 #200000 #2020', 
+    ' #1080440 #4010000 #44401000 #44444444 #3fc4 #11132200 #81111111', 
+    ' #88888888 #11111888 #1 #2000200 #44000002 #1080 #4010', 
+    ' #44444401 #fc444444 #20000003 #11111132 #88881111 #88888888 #111111', 
+    ' #20000000 #202000 #8044000 #1000001 #40100004 #44444444 #3fc444', 
+    ' #13220000 #11111111 #88888881 #11188888 #111 ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='layer-2', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0 #40100040 #8200000 #80000204 #8000800 #88888880 #c0088888', 
+    ' #d100003f #22222220 #44444222 #24444444 #22222 #4000000 #40100', 
+    ' #20408200 #80080000 #88008000 #88888888 #3fc0088 #220d1000 #22222222', 
+    ' #44444444 #22224444 #22 #10004000 #20000040 #20408 #80080', 
+    ' #88888008 #8888888 #3fc0 #222220d1 #44422222 #44444444 #2222224', 
+    ' #0 #4010004 #40820000 #8000020 #800080 #88888888 #fc008888', 
+    ' #d100003 #22222222 #44444422 #22444444 #2222 #400000 #4010', 
+    ' #2040820 #8008000 #88800800 #88888888 #3fc008 #2220d100 #42222222', 
+    ' #44444444 #22222444 #2 #1000400 #82000004 #2040 #80008008', 
+    ' #88888800 #888888 #100003fc #2222220d #44442222 #44444444 #222222', 
+    ' #40000000 #401000 #4082000 #800002 #80080008 #88888888 #3fc00888', 
+    ' #20d10000 #22222222 #44444442 #22244444 #222 ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='layer-3', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#8800 #80080080 #10000000 #40000403 #4001000 #11111100 #111111', 
+    ' #8803fc0 #44444440 #22222444 #42222222 #80044444 #8000008 #80080', 
+    ' #40310000 #40000 #10004001 #11111111 #fc000111 #44008803 #44444444', 
+    ' #22222222 #44442222 #880044 #8008000 #80 #40310 #100040', 
+    ' #11110004 #11111111 #803fc000 #44444008 #22244444 #22222222 #4444442', 
+    ' #880 #8008008 #31000000 #4000040 #400100 #11111110 #11111', 
+    ' #8803fc #44444444 #22222244 #44222222 #88004444 #800000 #8008', 
+    ' #4031000 #10004000 #11000400 #11111111 #3fc00011 #44400880 #24444444', 
+    ' #22222222 #44444222 #88004 #800800 #8 #4031 #40010004', 
+    ' #11111000 #1111111 #8803fc00 #44444400 #22224444 #22222222 #444444', 
+    ' #80000088 #800800 #3100000 #400004 #40010 #11111111 #c0001111', 
+    ' #4008803f #44444444 #22222224 #44422222 #444 ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='layer-4', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0 #40100 #20800001 #20000880 #2002000 #22222200 #222222', 
+    ' #47fc000 #8888888c #11111888 #81111111 #88888 #10000000 #100040', 
+    ' #88020800 #20000 #20002002 #22222222 #222 #88c047fc #88888888', 
+    ' #11111111 #88881111 #88 #4010000 #80000100 #88020 #200020', 
+    ' #22220002 #22222222 #7fc00000 #88888c04 #11188888 #11111111 #8888881', 
+    ' #0 #10004010 #2080000 #2000088 #200200 #22222220 #22222', 
+    ' #c047fc00 #88888888 #11111188 #88111111 #8888 #1000000 #10004', 
+    ' #8802080 #20002000 #22000200 #22222222 #c0000022 #888c047f #18888888', 
+    ' #11111111 #88888111 #8 #401000 #8000010 #8802 #20020002', 
+    ' #22222000 #2222222 #47fc0000 #888888c0 #11118888 #11111111 #888888', 
+    ' #0 #1000401 #80208000 #200008 #20020 #22222222 #2222', 
+    ' #8c047fc0 #88888888 #11111118 #88811111 #888 ]', ), ))
+# Save by zay on 2023_02_07-08.01.25; build 2021 2020_03_06-22.50.37 167380
+# Save by zay on 2023_02_07-08.23.07; build 2021 2020_03_06-22.50.37 167380
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.models['Model-1'].rootAssembly.Set(name='z-0', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#ffffffff:11 #fffff ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-1', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:11 #fff00000 #ffffffff:11 #ff ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-2', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:23 #ffffff00 #ffffffff:10 #fffffff ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-3', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:34 #f0000000 #ffffffff:11 #ffff ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-4', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:46 #ffff0000 #ffffffff:11 #f ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-5', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:58 #fffffff0 #ffffffff:10 #ffffff ]', ), ))
+mdb.models['Model-1'].rootAssembly.Set(name='z-6', nodes=
+    mdb.models['Model-1'].rootAssembly.instances['disc-2-1'].nodes.getSequenceFromMask(
+    mask=('[#0:69 #ff000000 #ffffffff:11 #fff ]', ), ))
+# Save by zay on 2023_02_16-08.10.11; build 2021 2020_03_06-22.50.37 167380
