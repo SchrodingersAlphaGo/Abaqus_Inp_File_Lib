@@ -17,20 +17,22 @@ elementEndNumber = 0
 # allSets = []
 allSetStart = {}
 
-
+# analyze starting and ending line of each part
 for i in range(0, len(inpFileContents)):
     line = inpFileContents[i]
     if not part.start and partKeys in line:
         part.startLineNum = i
         part.start = True
-    if nodeKeys in line:
+    if part.start and nodeKeys in line:
         nodeStartNumber = i+1
-    if elementKeys in line:
+    if part.start and elementKeys in line:
         elementStartNumber = i+1
         nodeEndNumber = i
-    if endPartKeys in line:
+    if part.start and endPartKeys in line:
         elementEndNumber = i
-    if setKeys in line:
+        part.start = False
+        part.end = True
+    if setKeys in line:             # get start line of each node set
         llist = line.split(",")
         if llist[0] == "*Nset":
             name = llist[1].split("=")[-1]
@@ -64,7 +66,7 @@ for setname,nline in allSetStart.items():
             llist = inpFileContents[i].split(",")
             # print(llist)
             allNsets[setname] = [int(llist[j]) for j in range(len(llist))]
-            break
+            break  # only one line in this set 
         else:
             if setname not in allNsets:
                 allNsets[setname] = []
