@@ -6,7 +6,7 @@ import vtk
 import matplotlib.pyplot as plt
 
 # fname = "./Job-1.inp"
-fname = "../Job-3.inp"
+fname = r"F:\ZAY\Code\abaqus\Abaqus_Inp_File_Lib\Job-3.inp"
 
 with open(fname, "r") as f:
     inpFileContents = f.readlines()
@@ -22,7 +22,7 @@ class Instance:
         self.part = ""
         self.node = []
         self.element = Element()
-        # self.closed = False
+        self.Nsets = {}
 
 class Nset:
     def __init__(self) -> None:
@@ -33,21 +33,75 @@ class Nset:
 
 
 instanceDict = {}
+setDict = {}
+currentInstanceOpened = False
+nodeOpened = False
+elementOpend = False
+NsetOpend = False
+generate = False
 
 for i in range(len(inpFileContents)):
     row = inpFileContents[i]
+    rowSplited = row.split(",")
     if "*Instance," in row:
-        splitedRow = row.split(",")
         currentInstance = Instance()
-        currentInstance.name = splitedRow[1].split("=")[-1]
-        currentInstance.part = splitedRow[2].split("=")[-1]
+        currentInstance.name = rowSplited[1].split("=")[-1].strip()
+        currentInstance.part = rowSplited[2].split("=")[-1].strip()
         currentInstanceOpened = True
-        print(currentInstance.name)
-        print(currentInstance.part)
-    
+    if currentInstanceOpened and "*Node" in row:
+        nodeOpened = True
+        continue
+
+    if nodeOpened:
+        try:
+            tmp = int(rowSplited[0])
+            pos = np.zeros(3)
+            pos[0],pos[1],pos[2] = float(rowSplited[1]),float(rowSplited[2]),float(rowSplited[3])
+            currentInstance.node.append(pos)
+            continue
+        except:
+            nodeOpened = False
+
+    if currentInstanceOpened and "*Element, " in row:
+        elementOpend = True
+        for x in rowSplited:
+            if "type=" in x:
+                currentInstance.element.type = (x.split("=")[-1]).strip()
+                break
+        continue
+
+    if elementOpend:
+        try:
+            tmp = int(rowSplited[0])
+            nlist = [int(x) for x in rowSplited[1:]]
+            currentInstance.element.elementList.append(nlist)
+            continue
+        except:
+            elementOpend = False
 
     if currentInstanceOpened and "*End Instance" in row:
         currentInstanceOpened = False
+        instanceDict[currentInstance.name] = currentInstance
+        continue
+
+    if "*Nset, " in row:
+        NsetOpend = True
+        if "generate" in row:
+            generate = True
+        else:
+            generate = False
+        
+        continue
+
+
+# print(instanceDict.keys())
+# for k,v in instanceDict.items():
+#     print(v.part, v.element.type)
+#     print(len(v.node), len(v.element.elementList))
+#     for x in v.element.elementList:
+#         print(x)
+#         input()
+
 
 exit()
 part = Part()
