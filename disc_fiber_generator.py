@@ -23,22 +23,25 @@ class Instance:
         self.node = []
         self.element = Element()
         self.Nsets = {}
+        self.czLines = {}
+        self.sortedLines = {}
+        self.fibers = {}
 
 class Nset:
     def __init__(self) -> None:
-        self.nset = ""
+        self.setName = ""
         self.instance = ""
-        self.isGenerated = False
+        self.isGenerate = False
         self.setList = []
 
 
 instanceDict = {}
-setDict = {}
+
 currentInstanceOpened = False
 nodeOpened = False
 elementOpend = False
-NsetOpend = False
-generate = False
+setLineNoList = []
+
 
 for i in range(len(inpFileContents)):
     row = inpFileContents[i]
@@ -85,253 +88,190 @@ for i in range(len(inpFileContents)):
         continue
 
     if "*Nset, " in row:
-        NsetOpend = True
-        if "generate" in row:
-            generate = True
-        else:
-            generate = False
-        
+        setLineNoList.append(i)
         continue
 
+print("number of Instance : ", len(instanceDict))
 
-# print(instanceDict.keys())
-# for k,v in instanceDict.items():
-#     print(v.part, v.element.type)
-#     print(len(v.node), len(v.element.elementList))
-#     for x in v.element.elementList:
-#         print(x)
-#         input()
+nn = 0; en = 0
+for name,inst in instanceDict.items():
+    # print("Instance : ", inst.name)
+    nl = len(inst.node)
+    el = len(inst.element.elementList)
+    # print("number of Nodes : ", nl)
+    # print("number of elements : ", el)
+    # print("--"*20)
+    nn += nl
+    en += el
+print("number of all nodes : ", nn)
+print("number of all elements : ", en)
 
+print("number of Nset : ", len(setLineNoList))
 
-exit()
-part = Part()
-nodeStartNumber = 0
-nodeEndNumber = 0
-elementStartNumber = 0
-elementEndNumber = 0
+# exit()
+setDict = {}
 
-# allSets = []
-allSetStart = {}
+# read Nset
+for i in setLineNoList:
+    setOpened = True
+    currentNset = Nset()
+    row = inpFileContents[i]
+    rowSplited = row.split(",")
+    if "generate" in row:
+        currentNset.isGenerate = True
+    currentNset.setName = rowSplited[1].split('=')[-1].strip()
+    currentNset.instance = rowSplited[2].split('=')[-1].strip()
+    setDict[currentNset.setName] = currentNset
 
-# analyze starting and ending line of each part
-for i in range(0, len(inpFileContents)):
-    line = inpFileContents[i]
-    if not part.start and partKeys in line:
-        part.startLineNum = i
-        part.start = True
-    if part.start and nodeKeys in line:
-        nodeStartNumber = i+1
-    if part.start and elementKeys in line:
-        elementStartNumber = i+1
-        nodeEndNumber = i
-    if part.start and endPartKeys in line:
-        elementEndNumber = i
-        part.start = False
-        part.end = True
-    if setKeys in line:             # get start line of each node set
-        llist = line.split(",")
-        if llist[0] == "*Nset":
-            name = llist[1].split("=")[-1]
-            allSetStart[name] = i+1
+    ii = i+1
+    if currentNset.isGenerate:
+        row = inpFileContents[ii]
+        rowSplited = row.split(",")
+        currentNset.setList = [x-1 for x in range(int(rowSplited[0]),int(rowSplited[1])+1)]
+        continue
 
-# analyze nodes
-allNodes = []
-for i in range(nodeStartNumber, nodeEndNumber):
-    llist = inpFileContents[i].split(",")
-    p = np.array([float(llist[1]),float(llist[2]),float(llist[3])])
-    allNodes.append(p)
-numNodes = len(allNodes)
-print("number of nodes : ", numNodes)
+    while setOpened:
+        row = inpFileContents[ii]
+        rowSplited = row.split(",")
+        try:
+            tmp = int(rowSplited[0])
+            tempList = [int(x)-1 for x in rowSplited]
+            currentNset.setList.extend(tempList)
+            ii += 1
+            continue
+        except:
+            setOpened = False
 
-# analyze elements
-allElements = []
-for i in range(elementStartNumber, elementEndNumber):
-    llist = inpFileContents[i].split(",")
-    elist = [int(llist[j]) for j in range(1, len(llist))]
-    allElements.append(elist)
-numElements = len(allElements)
-print("number of elements : ", numElements)
+print("number Nset : ", len(setDict))
+# for name, set in setDict.items():
+#     print(name,', ', len(set.setList))
 
-# analyze all sets
-allNsets = {}
-for setname,nline in allSetStart.items():
-    i = nline  # number of line
-    # print(i)
-    while (True):
-        if "generate" in inpFileContents[i-1]:
-            llist = inpFileContents[i].split(",")
-            # print(llist)
-            allNsets[setname] = [int(llist[j]) for j in range(len(llist))]
-            break  # only one line in this set 
-        else:
-            if setname not in allNsets:
-                allNsets[setname] = []
-            llist = inpFileContents[i].split(",")
-            try:
-                a = int(llist[0])
-                allNsets[setname] += [int(llist[j]) for j in range(len(llist))]
-                i += 1
-            except:
-                break
-
-# for k,v in allNsets.items():
-    # print(k, len(v))
-
-# separate circular layers and z layers
-circularLayerDict = {}
-zLayerDict = {}
-for setname, setList in allNsets.items():
-    if len(setList) == 3 and setList[-1] == 1:          
-        # expand 'generate set'
-        tempList = [i-1 for i in range(setList[0], setList[1]+1)]
-    elif len(setList) > 3:
-        tempList = [i-1 for i in setList]
-    if "layer-" in setname:
-        circularLayerDict[setname] = (tempList)
-    elif "z-" in setname:
-        zLayerDict[setname] = (tempList)
-
-# check len of each layer
-# for k,v in circularLayerDict.items():
-#     print(k, len(allNsets[k]),len(v))
-# for k,v in zLayerDict.items():
-#     print(k, len(allNsets[k]),len(v))
-
-# get each z layer for each circular layer
-# for each circular layer
-separatedCircularSets = {}
-for cSetName, cList in circularLayerDict.items():
-    separatedCircularSets[cSetName] = {}
-    # for each all z layer
-    for zSetName, zList in zLayerDict.items():
-        # get union of two set
-        separatedCircularSets[cSetName][zSetName] = list(set(cList) & set(zList))
-
-# sort z-0 layer of each circular layer
-sortedZ0Dict = {}
-for setName, cSet in separatedCircularSets.items():
-    # print("circular layer name: ", setName)
-    vpts = vtk.vtkPoints()
-    # sort z-0 layer
+# === generate f ===
+# separate Nsets by Instance
+for name, nset in setDict.items():
+    # print(name)
+    nameSplited = name.split('-')
+    # annulusNo = nameSplited[1]
+    currInst = instanceDict[nset.instance]
+    layerType = nameSplited[2]
+    layerNo = int(nameSplited[3])
+    # if "layer" in name:
+    if layerType not in currInst.Nsets:
+            currInst.Nsets[layerType] = {}
+    currInst.Nsets[layerType][layerNo] = nset.setList
     
-    z0SetName = "z-0"
-    z0list = cSet[z0SetName] # layer-0, z-0
-    for x in z0list:
-        p = allNodes[x]
-        vpts.InsertNextPoint(tuple(p))
-    # print("number of points: ", vpts.GetNumberOfPoints())
 
-    kdtree = vtk.vtkKdTree()
-    kdtree.BuildLocatorFromPoints(vpts)
-    
-    # print("layer0, z0: ",z0list)
-    # for i in range(len(z0list)):
-        # print(i,z0list[i])
-
-    initId = 0
-    sortedIList = [initId]
-    sortedNodeIds = [z0list[sortedIList[0]]]
-    ending = False
-    while True:
-        p = allNodes[sortedNodeIds[-1]]
-        idList = vtk.vtkIdList()
-        kdtree.FindClosestNPoints(3, p, idList)
-        newIds = []
-        for i in range(idList.GetNumberOfIds()):
-            id = idList.GetId(i)
-            if id not in sortedIList:
-                newIds.append(id)
-
-        if len(newIds) == 1:
-            id = newIds[0]
-            nId = z0list[id]
-            # print(id, nId)
-            sortedIList.append(id)
-            sortedNodeIds.append(nId)
-            p1 = allNodes[nId]
-            dz = p1[2] - p[2]
-            if np.abs(dz) > 0.5:
-                print("dz = ", dz)
-        elif len(newIds) == 2:
-            p0 = np.array(p)
-            id1 = newIds[0]
-            nid1 = z0list[id1]
-            p1 = allNodes[nid1]
-            id2 = newIds[1]
-            nid2 = z0list[id2]
-            p2 = allNodes[nid2]
-            d01 = np.linalg.norm(p0-p1)
-            d02 = np.linalg.norm(p0-p2)
-            dz1 = p0[2] - p1[2]
-            dz2 = p0[2] - p2[2]
-            if d01 < d02:
-                sortedIList.append(id1)
-                sortedNodeIds.append(nid1)
-                # if np.abs(dz1) > 0.5:
-                    # print("dz = ", dz)
-            else:
-                sortedIList.append(id2)
-                sortedNodeIds.append(nid2)
-                # if np.abs(dz2) > 0.5:
-                    # print("dz = ", dz)
-
-        else:
-            print("len newIds = ", len(newIds))
-            exit()
-        if len(sortedIList) == len(z0list):
-            break
-    
-    sortedZ0Dict[setName] = sortedNodeIds
-
-    # print(sortedIList)
-    # print(sorted(sortedIList))
-    # print(sortedNodeIds)
-    # print(sorted(z0list))
-    # print(sorted(sortedNodeIds))
-    # sz0list = sorted(z0list)
-    # ssortedNodeIds = sorted(sortedNodeIds)
-    # for i in range(len(sz0list)):
-    #     dd = sz0list[i] - ssortedNodeIds[i]
-    #     if np.abs(dd) > 0.1:
-    #         print(sz0list[i], ssortedNodeIds[i])
-    # x = [allNodes[i][0] for i in sortedNodeIds]
-    # y = [allNodes[i][1] for i in sortedNodeIds]
-
-    # plt.plot(x,y,'o-')
-    # plt.show()
-
-    # exit()
-
-# sort other z layer of each circular layer
-sortedZDict = {}
-for setName, cSet in separatedCircularSets.items():
-    sortedZDict[setName] = {}
-    sortedZ0List = sortedZ0Dict[setName]
-    sortedZDict[setName]["z-0"] = sortedZ0List
-    for nzLayer in range(1,7): # other z layer
-        zlayerName = "z-" + str(nzLayer)
-        zlayerIds = cSet[zlayerName]
-        sortedZDict[setName][zlayerName] = []
+def generateFibers(ins:Instance) -> None:
+    layers = ins.Nsets["layer"]
+    zs = ins.Nsets['z']
+    nodes = ins.node
+    # find each z line for each layer
+    for lyNo, lyList in layers.items():
+        for zNo, zList in zs.items():
+            czName = "c-%d-z-%d"%(lyNo, zNo)
+            ins.czLines[czName] = list(set(lyList) & set(zList))
+            # print(czName, len(ins.czLines[czName]))
+            # input()
+    # sort z-0 line for each circular
+    for i in range(1,7): # each circular layer
+        czName = "c-%d-z-0"%i
+        z0list = ins.czLines[czName]
 
         vpts = vtk.vtkPoints()
-        for i in zlayerIds:
-            p = allNodes[i]
+        for j in z0list:
+            p = nodes[j]
             vpts.InsertNextPoint(p)
-
         kdtree = vtk.vtkKdTree()
         kdtree.BuildLocatorFromPoints(vpts)
 
-        for i in sortedZ0List:
-            p = allNodes[i]
-            id = vtk.vtkIdList()
-            kdtree.FindClosestNPoints(1,p,id)
-            nodeId = zlayerIds[id.GetId(0)]
-            sortedZDict[setName][zlayerName].append(nodeId)
-        # x = [allNodes[i][0] for i in sortedZDict[setName][zlayerName]]
-        # y = [allNodes[i][1] for i in sortedZDict[setName][zlayerName]]
-        # plt.plot(x,y,"o-")
-        # plt.title(setName + "-" + zlayerName)
-        # plt.show()
+        initId = 0
+        sortedIList = [initId]
+        sortedNodeIds = [z0list[sortedIList[0]]]
+        ending = False
+        while True:
+            p = nodes[sortedNodeIds[-1]]
+            idList = vtk.vtkIdList()
+            kdtree.FindClosestNPoints(3, p, idList)
+            newIds = []
+            for i in range(idList.GetNumberOfIds()):
+                id = idList.GetId(i)
+                if id not in sortedIList:
+                    newIds.append(id)
+
+            if len(newIds) == 1:
+                id = newIds[0]
+                nId = z0list[id]
+                # print(id, nId)
+                sortedIList.append(id)
+                sortedNodeIds.append(nId)
+                p1 = nodes[nId]
+                dz = p1[2] - p[2]
+                if np.abs(dz) > 0.5:
+                    print("dz = ", dz)
+            elif len(newIds) == 2:
+                p0 = np.array(p)
+                id1 = newIds[0]
+                nid1 = z0list[id1]
+                p1 = nodes[nid1]
+                id2 = newIds[1]
+                nid2 = z0list[id2]
+                p2 = nodes[nid2]
+                d01 = np.linalg.norm(p0-p1)
+                d02 = np.linalg.norm(p0-p2)
+                dz1 = p0[2] - p1[2]
+                dz2 = p0[2] - p2[2]
+                if d01 < d02:
+                    sortedIList.append(id1)
+                    sortedNodeIds.append(nid1)
+                else:
+                    sortedIList.append(id2)
+                    sortedNodeIds.append(nid2)
+            else:
+                print("len newIds = ", len(newIds))
+                exit()
+            if len(sortedIList) == len(z0list):
+                break
+        
+        ins.sortedLines[czName] = sortedNodeIds
+
+    # sort other z line for each circular
+    for i in range(1,7): # each circular layer
+        nz = len(zs)
+        sortedZ0List = ins.sortedLines["c-%d-z-0"%i]
+        for k in range(1, nz):
+            czName = "c-%d-z-%d"%(i,k)
+            zlayerIds = ins.czLines[czName]
+            sortedList = []
+
+            vpts = vtk.vtkPoints()
+            for i in zlayerIds:
+                p = nodes[i]
+                vpts.InsertNextPoint(p)
+
+            kdtree = vtk.vtkKdTree()
+            kdtree.BuildLocatorFromPoints(vpts)
+
+            for i in sortedZ0List:
+                p = nodes[i]
+                id = vtk.vtkIdList()
+                kdtree.FindClosestNPoints(1,p,id)
+                nodeId = zlayerIds[id.GetId(0)]
+                sortedList.append(nodeId)
+            ins.sortedLines[czName] = sortedList
+
+    # generate T3D2 elements
+    
+
+
+# for each Instance
+for name, inst in instanceDict.items():
+    print(name)
+    generateFibers(inst)
+
+# exit()
+
+# '''
+
 
 # create T3D2 elements
 # nodes
@@ -399,3 +339,4 @@ with open("fibers.txt",'w',newline='') as f:
 # part name
 # truss elements
 # output
+'''
