@@ -260,7 +260,17 @@ def generateFibers(ins:Instance) -> None:
             ins.sortedLines[czName] = sortedList
 
     # generate T3D2 elements
-    
+    # for each layer
+        # part
+            # node
+            # element
+            # set
+        # instance
+        # set
+    for i in range(1,7): # each layer
+        partName = "*Part, name=%s-layer-%d"%(ins.name, i)
+        print(partName)
+        exit()
 
 
 # for each Instance
@@ -270,7 +280,7 @@ for name, inst in instanceDict.items():
 
 # exit()
 
-# '''
+'''
 
 
 # create T3D2 elements
